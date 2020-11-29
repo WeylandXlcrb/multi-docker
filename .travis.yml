@@ -1,0 +1,17 @@
+language: generic
+services:
+  - docker
+before_install:
+  - docker build -t weylandxlcrb/react-test -f ./client/Dockerfile.dev ./client
+script:
+  - docker run -e CI=true weylandxlcrb/react-test npm test
+after_success:
+  - docker build -t weylandxlcrb/multi-client ./client
+  - docker build -t weylandxlcrb/multi-nginx ./nginx
+  - docker build -t weylandxlcrb/multi-server ./server
+  - docker build -t weylandxlcrb/multi-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push weylandxlcrb/multi-client
+  - docker push weylandxlcrb/multi-nginx
+  - docker push weylandxlcrb/multi-server
+  - docker push weylandxlcrb/multi-worker
